@@ -9,22 +9,72 @@
  * A server.js has been provided to supply these values.
  */
 
+const { error } = require('console');
+
 // Global constant for mortgage simulation
 const LOAN_TERM_MONTHS = 360; // 30 Years
 const INTEREST_RATE = 7.0; // 7.0% baseline interest rate
 const ASSESSMENT_RATE_BUFFER = 3.0; // 3.0% buffer added to interest rates
 
-// Legacy placeholder functions to replace with API calls
-function getTax(income) {
-    // REPLACE THIS
-    // Write your TAX API call code here.
-    return Math.round(income * 0.25);
+// // Legacy placeholder functions to replace with API calls
+// function getTax(income) {
+//     // REPLACE THIS
+//     // Write your TAX API call code here.
+//     return Math.round(income * 0.25);
+// }
+
+async function getTax(income){
+    try{
+        const response = await fetch(`http://localhost:3000/api/tax?income=${income}`, {
+            headers: {
+                'Authorization': 'Bearer pat_abcdefghijklmnopqrstuvwxyz0123456789', // Hardcoded for now, implement a version that can toggle it later
+            }
+        });
+
+        // Convert it to a json object
+        const results = await response.json();
+
+        console.log(results);
+
+        // Get the income from the json
+        const final = results.income;
+
+        return final
+
+    }
+    catch (err) {
+        console.error("Tax calculation failed. Reason: ", err);
+        // Wont cause it to crash but will return 0
+        return 0
+    }
 }
 
-function getHEM(income, dependents) {
-    // REPLACE THIS
-    // Write your HEM API call code here.
-    return 2000 + (dependents * 400);
+async function getHEM(income, dependents) {
+
+    try{
+        const response = await fetch(`http://localhost:3000/api/hem?income=${income}&dependents=${dependents}`, {
+            headers: {
+                'Authorization': 'Bearer pat_abcdefghijklmnopqrstuvwxyz0123456789', // Hardcoded for now, implement a version that can toggle it later
+            }
+        });
+
+        // Convert it to a json object
+        const results = await response.json();
+
+        console.log(results);
+
+        // Get the hem from the json
+        const final = results.hem;
+
+        return final
+
+    }
+    catch (err) {
+        console.error("HEM calculation failed. Reason: ", err);
+        // Wont cause it to crash but will return 0
+        return 0
+    }
+
 }
 
 /**
