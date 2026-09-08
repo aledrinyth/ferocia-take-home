@@ -38,7 +38,13 @@ class Calculator {
 
             console.log(results);
 
-            // Get the income from the json
+            // Check if API returned an error
+            if (!response.ok || results.error) {
+                console.error("Tax API error:", results.error || results.message);
+                return 0;
+            }
+
+            // Get the tax from the json
             const final = results.tax;
 
             return final
@@ -65,6 +71,12 @@ class Calculator {
 
             console.log(results);
 
+            // Checks if API returned an error
+            if (!response.ok || results.error) {
+                console.error("HEM API error:", results.error || results.message);
+                return 0;
+            }
+
             // Get the hem from the json
             const final = results.hem;
 
@@ -83,6 +95,36 @@ class Calculator {
      * Calculates the total borrowing power amount and the monthly repayment configuration
      */
     async calculateBorrowingPower(income, dependents, expenses, creditLimits, annualAssessmentRate) {
+        // Validate all the input coming in
+        income = Number(income);
+        dependents = Number(dependents);
+        expenses = Number(expenses);
+        creditLimits = Number(creditLimits);
+        annualAssessmentRate = Number(annualAssessmentRate);
+
+        // Handle the scenario if there are any invalid inputs
+        if (!Number.isFinite(income) || !Number.isFinite(dependents) || 
+            !Number.isFinite(expenses) || !Number.isFinite(creditLimits) ||
+            !Number.isFinite(annualAssessmentRate)) {
+            return { maxLoanAmount: 0, monthlyRepayment: 0 };
+        }
+
+        // If there are negative values then return an error
+        if (income < 0 || dependents < 0 || expenses < 0 || creditLimits < 0){
+            console.log("\n===================================");
+            console.error("Please make sure your inputs are positive.")
+            console.log("===================================");
+
+            return { maxLoanAmount: 0, monthlyRepayment: 0 };
+
+        }
+
+        // Treat negative values as 0 for non-rate inputs to prevent it from crashing
+        income = Math.max(0, income);
+        dependents = Math.max(0, dependents);
+        expenses = Math.max(0, expenses);
+        creditLimits = Math.max(0, creditLimits);
+
         // 1. Calculate Net Monthly Income after tax deductions
         const annualTax = await this.getTax(income);
         const netMonthlyIncome = (income - annualTax) / 12;
