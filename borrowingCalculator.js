@@ -69,8 +69,6 @@ class Calculator {
             // Convert it to a json object
             const results = await response.json();
 
-            console.log(results);
-
             // Checks if API returned an error
             if (!response.ok || results.error) {
                 console.error("HEM API error:", results.error || results.message);
@@ -96,6 +94,9 @@ class Calculator {
      */
     async calculateBorrowingPower(income, dependents, expenses, creditLimits, annualAssessmentRate) {
         // Validate all the input coming in
+        // ================
+        // Validation area
+        // ================
         income = Number(income);
         dependents = Number(dependents);
         expenses = Number(expenses);
@@ -106,6 +107,12 @@ class Calculator {
         if (!Number.isFinite(income) || !Number.isFinite(dependents) || 
             !Number.isFinite(expenses) || !Number.isFinite(creditLimits) ||
             !Number.isFinite(annualAssessmentRate)) {
+            return { maxLoanAmount: 0, monthlyRepayment: 0 };
+        }
+
+        // Makes sure it doesnt result in a divide by 0 when calculating monthly rate below
+        if (annualAssessmentRate < 0) {
+            console.error("Assessment rate cannot be negative.");
             return { maxLoanAmount: 0, monthlyRepayment: 0 };
         }
 
@@ -124,6 +131,10 @@ class Calculator {
         dependents = Math.max(0, dependents);
         expenses = Math.max(0, expenses);
         creditLimits = Math.max(0, creditLimits);
+
+        // ================
+        // Validation ends
+        // ================
 
         // 1. Calculate Net Monthly Income after tax deductions
         const annualTax = await this.getTax(income);
@@ -145,7 +156,6 @@ class Calculator {
             return { maxLoanAmount: 0, monthlyRepayment: 0 };
         }
 
-        // 5. Calculate the monthly interest rate
         const monthlyRate = (annualAssessmentRate / 100) / 12;
 
         // 6. Calculate maximum borrowing power using the following formula:
@@ -160,7 +170,7 @@ class Calculator {
 
 }
 
-function runConsoleMode() {
+async function runConsoleMode() {
 
     // Instantiate a calculator class to get the previously global values
     const calculator = new Calculator();
