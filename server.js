@@ -5,10 +5,12 @@
  * 
  */
 
+require("dotenv").config();
+
 const http = require("http");
 
-const PORT = 3000;
-const VALID_PAT = "pat_abcdefghijklmnopqrstuvwxyz0123456789";
+const PORT = process.env.PORT || 3000;
+const VALID_PAT = process.env.VALID_PAT || "pat_abcdefghijklmnopqrstuvwxyz0123456789"; // hardcoded for now so its fine, can swap in the .env later
 
 const HEM_MATRIX = {
     low:    { 0: 1600, 1: 2100, 2: 2500, 3: 2800 },

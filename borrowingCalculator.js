@@ -9,6 +9,8 @@
  * A server.js has been provided to supply these values.
  */
 
+require("dotenv").config()
+
 class Calculator {
     /*
     This calculator class handles all calculator stuff
@@ -25,9 +27,9 @@ class Calculator {
 
     async getTax(income){
         try{
-            const response = await fetch(`http://localhost:3000/api/tax?income=${income}`, {
+            const response = await fetch(`${process.env.SERVER_API}/tax?income=${income}`, {
                 headers: {
-                    'Authorization': 'Bearer pat_abcdefghijklmnopqrstuvwxyz0123456789', // Hardcoded for now, implement a version that can toggle it later
+                    'Authorization': `Bearer ${process.env.VALID_PAT}`, 
                 }
             });
 
@@ -52,9 +54,9 @@ class Calculator {
     async getHEM(income, dependents) {
 
         try{
-            const response = await fetch(`http://localhost:3000/api/hem?income=${income}&dependents=${dependents}`, {
+            const response = await fetch(`${process.env.SERVER_API}/hem?income=${income}&dependents=${dependents}`, {
                 headers: {
-                    'Authorization': 'Bearer pat_abcdefghijklmnopqrstuvwxyz0123456789', // Hardcoded for now, implement a version that can toggle it later
+                    'Authorization': `Bearer ${process.env.VALID_PAT}`, 
                 }
             });
 
@@ -87,8 +89,6 @@ class Calculator {
 
         // 2. Determine living expenses (User declared expenses vs HEM baseline, whichever is higher)
         const baselineHEM = await this.getHEM(income, dependents);
-
-        console.log(baselineHEM)
 
         const totalLivingExpenses = Math.max(expenses, baselineHEM);
 
